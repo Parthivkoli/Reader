@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Digital AI Reader{% endblock %}
+
+{% block content %}
+<!-- Include Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Poppins:wght@300;400&display=swap" rel="stylesheet">
+
+<!-- Jumbotron Section -->
+<div class="jumbotron text-center py-5 mb-4">
+    <h1 class="display-4" style="font-family: 'Poppins', sans-serif;">Welcome to Digital AI Reader</h1>
+    <p class="lead" style="font-family: 'Roboto', sans-serif;">Your personal digital library for reading and managing books, now powered by AI!</p>
+    {% if not current_user.is_authenticated %}
+    <div class="mt-4">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg mx-2">Get Started</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg mx-2">Login</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Dark Mode Toggle Button -->
+<button id="darkModeToggle" class="btn btn-sm btn-secondary position-fixed top-0 end-0 mt-1 me-2">
+    <i class="fas fa-moon"></i> Dark Mode
+</button>
+
+<!-- Scraped Books Sections -->
+{% for source, books in scraped_books.items() %}
+<div class="container mt-5">
+    <h2 class="mb-4" style="font-family: 'Poppins', sans-serif;">Trending on {{ source }}</h2>
+    <div class="row">
+        {% for book in books %}
+        <div class="col-md-3 mb-4">
+            <div class="card book-card h-100">
+                {% if book.cover %}
+                <img src="{{ book.cover }}" class="card-img-top book-cover" alt="{{ book.title }}">
+                {% else %}
+                <div class="card-img-top book-cover d-flex align-items-center justify-content-center bg-light">
+                    <i class="fas fa-book fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title" style="font-family: 'Roboto', sans-serif;">{{ book.title }}</h5>
+                    <p class="card-text" style="font-family: 'Roboto', sans-serif;">
+                        <small class="text-muted">By {{ book.author }}</small>
+                    </p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{{ book.link }}" target="_blank" class="btn btn-primary btn-sm">View on {{ source }}</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+
+<!-- Featured Books Section -->
+<div class="container">
+    <h2 class="mb-4" style="font-family: 'Poppins', sans-serif;">Featured Books</h2>
+    <div class="row">
+        {% for book in featured_books %}
+        <div class="col-md-4 mb-4">
+            <div class="card book-card h-100">
+                {% if book.cover_image %}
+                <img src="{{ url_for('static', filename='uploads/' + book.cover_image) }}" class="card-img-top book-cover" alt="{{ book.title }}">
+                {% else %}
+                <div class="card-img-top book-cover d-flex align-items-center justify-content-center bg-light">
+                    <i class="fas fa-book fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title" style="font-family: 'Roboto', sans-serif;">{{ book.title }}</h5>
+                    <p class="card-text" style="font-family: 'Roboto', sans-serif;">
+                        <small class="text-muted">By {{ book.author }}</small>
+                    </p>
+                    <p class="card-text" style="font-family: 'Roboto', sans-serif;">{{ book.description[:100] }}...</p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{{ url_for('books.view_book', book_id=book.id) }}" class="btn btn-primary btn-sm">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Public Books Section -->
+<div class="container">
+    <h2 class="mb-4" style="font-family: 'Poppins', sans-serif;">Public Books</h2>
+    <div class="row">
+        {% for book in public_books %}
+        <div class="col-md-4 mb-4">
+            <div class="card book-card h-100">
+                {% if book.cover_image %}
+                <img src="{{ url_for('static', filename='uploads/' + book.cover_image) }}" class="card-img-top book-cover" alt="{{ book.title }}">
+                {% else %}
+                <div class="card-img-top book-cover d-flex align-items-center justify-content-center bg-light">
+                    <i class="fas fa-book fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title" style="font-family: 'Roboto', sans-serif;">{{ book.title }}</h5>
+                    <p class="card-text" style="font-family: 'Roboto', sans-serif;">
+                        <small class="text-muted">By {{ book.author }}</small>
+                    </p>
+                    <p class="card-text" style="font-family: 'Roboto', sans-serif;">{{ book.description[:100] }}...</p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{{ url_for('books.view_book', book_id=book.id) }}" class="btn btn-primary btn-sm">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- App Features Section -->
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4 text-center mb-4">
+            <i class="fas fa-book-reader fa-3x mb-3 text-primary"></i>
+            <h3 style="font-family: 'Poppins', sans-serif;">Easy Reading</h3>
+            <p style="font-family: 'Roboto', sans-serif;">Read your books anywhere, anytime with our comfortable reading interface.</p>
+        </div>
+        <div class="col-md-4 text-center mb-4">
+            <i class="fas fa-sync fa-3x mb-3 text-primary"></i>
+            <h3 style="font-family: 'Poppins', sans-serif;">Sync Progress</h3>
+            <p style="font-family: 'Roboto', sans-serif;">Your reading progress is automatically saved and synced across devices.</p>
+        </div>
+        <div class="col-md-4 text-center mb-4">
+            <i class="fas fa-bookmark fa-3x mb-3 text-primary"></i>
+            <h3 style="font-family: 'Poppins', sans-serif;">Bookmarks</h3>
+            <p style="font-family: 'Roboto', sans-serif;">Add bookmarks and notes to keep track of important passages.</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+<!-- Add JavaScript for Dark Mode -->
+<script>
+    // Dark Mode Toggle 
+    document.addEventListener('DOMContentLoaded', function() {
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', function() {
+                // Send Dark Mode Preference to Server
+                updateDarkModePreference(this.checked)
+                    .then((data) => {
+                        if (data.status === 'success') {
+                            document.body.classList.toggle('dark-mode');
+                            const icon = this.querySelector('i');
+                            if (document.body.classList.contains('dark-mode')) {
+                                icon.classList.remove('fa-moon');
+                                icon.classList.add('fa-sun');
+                            } else {
+                                icon.classList.remove('fa-sun');
+                                icon.classList.add('fa-moon');
+                            }
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error updating dark mode:', error);
+                    });
+            });
+        }
+    });
+
+    // Function to Update Dark Mode Preference
+    function updateDarkModePreference(isDarkMode) {
+        return fetch('/settings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ dark_mode: isDarkMode }),
+        })
+        .then(response => response.json())
+        .catch((error) => {
+            console.error('Error updating dark mode preference:', error);
+            throw error;
+        });
+    }
+</script>
+
+<style>
+    /* Dark Mode Styles */
+    body.dark-mode {
+        background-color: #121212;
+        color: white;
+    }
+    body.dark-mode .card {
+        background-color: #1f1f1f;
+        border-color: #333;
+    }
+    body.dark-mode .card-footer {
+        background-color: #2c2c2c;
+    }
+    body.dark-mode .card-title,
+    body.dark-mode .card-text,
+    body.dark-mode .jumbotron {
+        color: white;
+    }
+</style>

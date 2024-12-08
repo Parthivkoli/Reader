@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Discover Books{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Discover Books</h2>
+    
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <form id="searchForm" class="d-flex gap-2">
+                <input type="text" id="searchQuery" class="form-control" 
+                       placeholder="Search by title, author, or description">
+                <select id="categoryFilter" class="form-select" style="width: auto;">
+                    <option value="">All Categories</option>
+                    <option value="fiction">Fiction</option>
+                    <option value="non-fiction">Non-Fiction</option>
+                    <option value="science">Science</option>
+                    <option value="technology">Technology</option>
+                    <option value="history">History</option>
+                </select>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="bookResults">
+        <div class="row">
+            {% for book in books %}
+            <div class="col-md-4 mb-4">
+                <div class="card book-card h-100">
+                    {% if book.cover_image %}
+                    <img src="{{ url_for('static', filename='uploads/' + book.cover_image) }}" 
+                         class="card-img-top book-cover" alt="{{ book.title }}">
+                    {% else %}
+                    <div class="card-img-top book-cover d-flex align-items-center justify-content-center bg-light">
+                        <i class="fas fa-book fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ book.title }}</h5>
+                        <p class="card-text">
+                            <small class="text-muted">By {{ book.author }}</small>
+                        </p>
+                        <p class="card-text">{{ book.description[:100] }}...</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="rating">
+                                {% for _ in range(book.average_rating|round|int) %}
+                                <i class="fas fa-star text-warning"></i>
+                                {% endfor %}
+                                {% for _ in range(5 - book.average_rating|round|int) %}
+                                <i class="far fa-star text-warning"></i>
+                                {% endfor %}
+                            </div>
+                            <small class="text-muted">{{ book.reviews|length }} reviews</small>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a href="{{ url_for('books.view_book', book_id=book.id) }}" 
+                           class="btn btn-primary btn-sm">View Details</a>
+                        {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('books.read_book', book_id=book.id) }}" 
+                           class="btn btn-outline-primary btn-sm">Read Now</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

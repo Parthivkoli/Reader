@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Reading: {{ book.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        overflow: hidden;
+    }
+    
+    .reader-page {
+        background: white;
+        padding: 40px;
+        margin: 20px auto;
+        max-width: 800px;
+        min-height: calc(100vh - 200px);
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        font-size: 16px;
+        line-height: 1.6;
+    }
+    
+    .dark-mode .reader-page {
+        background: #2d2d2d;
+        color: #f8f9fa;
+    }
+    
+    .reader-controls {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255,255,255,0.95);
+        padding: 15px;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+    }
+    
+    .dark-mode .reader-controls {
+        background: rgba(45,45,45,0.95);
+    }
+    
+    .progress-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: #f0f0f0;
+        z-index: 1000;
+    }
+    
+    .progress-bar {
+        height: 100%;
+        background: var(--primary-color);
+        width: 0;
+        transition: width 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="progress-container">
+    <div id="readingProgress" class="progress-bar" role="progressbar" 
+         style="width: {{ (progress.current_page / book.total_pages * 100)|round }}%">
+    </div>
+</div>
+
+<div id="readerContainer" class="reader-page">
+    <!-- Book content will be loaded here -->
+</div>
+
+<div class="reader-controls">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-4">
+                <div class="btn-group">
+                    <button id="prevPage" class="btn btn-outline-primary">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="d-flex align-items-center px-3">
+                        <input type="number" id="pageNumber" class="form-control form-control-sm" 
+                               style="width: 70px" value="{{ progress.current_page }}">
+                        <span class="mx-2">of {{ book.total_pages }}</span>
+                    </div>
+                    <button id="nextPage" class="btn btn-outline-primary">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="col-md-4 text-center">
+                <div class="btn-group">
+                    <button id="zoomOut" class="btn btn-outline-secondary">
+                        <i class="fas fa-search-minus"></i>
+                    </button>
+                    <button id="zoomIn" class="btn btn-outline-secondary">
+                        <i class="fas fa-search-plus"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="col-md-4 text-end">
+                <button id="addBookmark" class="btn btn-outline-primary">
+                    <i class="fas fa-bookmark"></i> Bookmark
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const reader = new BookReader('readerContainer');
+        reader.bookId = {{ book.id }};
+        reader.currentPage = {{ progress.current_page }};
+        reader.totalPages = {{ book.total_pages }};
+        
+        // Handle keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                reader.prevPage();
+            } else if (e.key === 'ArrowRight') {
+                reader.nextPage();
+            }
+        });
+    });
+</script>
+{% endblock %}
